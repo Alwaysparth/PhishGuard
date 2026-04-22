@@ -105,16 +105,13 @@ PhishGuard/
 │   ├── app/
 │   ├── ml/
 │   ├── core/
+│   ├── data/
 │   └── run.py
 │
 ├── frontend/
 │   ├── index.html
 │   ├── style.css
 │   └── script.js
-│
-├── extension/
-│
-├── data/
 │
 └── README.md
 ```

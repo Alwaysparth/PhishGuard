@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishGuard — Scanner</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.scanner-hero {
+  padding: 60px 48px 0;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.scanner-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 32px;
+}
+
+.scanner-box::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+  opacity:0.6;
+}
+
+.url-row { display:flex; gap:12px; margin-bottom:12px; }
+
+.url-input {
+  flex:1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 14px 18px;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.url-input::placeholder { color: var(--text-muted); }
+.url-input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0,255,170,0.08);
+}
+
+.scan-hint {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+/* Stages loader */
+#loader { display:none; padding:20px 0 8px; }
+
+.stage-list { display:flex; flex-direction:column; gap:8px; margin:14px 0; }
+
+.stage {
+  display:flex; align-items:center; gap:12px;
+  font-family: var(--mono); font-size:13px; color: var(--text-muted);
+  padding: 10px 14px; border-radius:6px;
+  background: rgba(0,255,170,0.02); border: 1px solid transparent;
+  transition: all 0.35s;
+}
+
+.stage.running {
+  color: var(--green);
+  border-color: rgba(0,255,170,0.18);
+  background: rgba(0,255,170,0.05);
+}
+
+.stage.done { color: var(--green); opacity: 0.55; }
+
+.stage-ico {
+  width:18px; height:18px; border-radius:50%;
+  border: 2px solid currentColor; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px;
+}
+
+.stage-ico.spin {
+  border-color: var(--green) transparent transparent transparent;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Result card */
+#result-card {
+  display:none; margin-top:20px;
+  border-radius:12px; overflow:hidden;
+  border:1px solid var(--border);
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.result-head {
+  padding:20px 24px;
+  display:flex; align-items:center; gap:16px;
+}
+
+.r-icon {
+  width:52px; height:52px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
+}
+
+.r-info { flex:1; }
+
+.r-status {
+  font-family: var(--display);
+  font-size:20px; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase;
+}
+
+.r-url {
+  font-family:var(--mono); font-size:11px;
+  color:var(--text-sub); margin-top:4px;
+  word-break:break-all;
+}
+
+.r-score {
+  font-family:var(--display); font-size:30px; font-weight:900;
+  padding:8px 16px; border-radius:8px; flex-shrink:0;
+}
+
+.result-body { padding:20px 24px; border-top:1px solid rgba(255,255,255,0.05); }
+
+.reasons-title {
+  font-family:var(--mono); font-size:10px;
+  letter-spacing:2.5px; color:var(--text-muted);
+  text-transform:uppercase; margin-bottom:12px;
+}
+
+.reason {
+  display:flex; gap:10px; align-items:flex-start;
+  padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:14px; color:var(--text-sub);
+}
+.reason:last-child { border-bottom:none; }
+.reason-arrow { flex-shrink:0; margin-top:1px; }
+
+/* Themes */
+.t-safe    { border-color:rgba(0,255,170,0.28); }
+.t-safe    .result-head { background:rgba(0,255,170,0.05); }
+.t-safe    .r-icon      { background:rgba(0,255,170,0.14); }
+.t-safe    .r-status    { color:var(--green); text-shadow:var(--glow-g); }
+.t-safe    .r-score     { background:rgba(0,255,170,0.12); color:var(--green); }
+
+.t-suspicious { border-color:rgba(255,215,0,0.28); }
+.t-suspicious .result-head { background:rgba(255,215,0,0.05); }
+.t-suspicious .r-icon      { background:rgba(255,215,0,0.14); }
+.t-suspicious .r-status    { color:var(--yellow); }
+.t-suspicious .r-score     { background:rgba(255,215,0,0.12); color:var(--yellow); }
+
+.t-phishing { border-color:rgba(255,51,102,0.28); }
+.t-phishing .result-head { background:rgba(255,51,102,0.05); }
+.t-phishing .r-icon      { background:rgba(255,51,102,0.14); }
+.t-phishing .r-status    { color:var(--red); text-shadow:var(--glow-r); }
+.t-phishing .r-score     { background:rgba(255,51,102,0.12); color:var(--red); }
+
+/* Recent scans table */
+.table-wrap {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:12px; overflow:hidden;
+}
+
+.t-row {
+  display:grid; grid-template-columns:2fr 1fr 1fr 1fr;
+  padding:13px 22px; border-bottom:1px solid rgba(255,255,255,0.03);
+  align-items:center; transition:background 0.15s;
+}
+
+.t-row:hover { background:rgba(0,255,170,0.02); }
+.t-row:last-child { border-bottom:none; }
+
+.t-head {
+  background:rgba(0,255,170,0.03);
+  border-bottom:1px solid var(--border);
+  font-family:var(--mono); font-size:10px;
+  color:var(--text-muted); letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.t-cell { font-size:13px; color:var(--text-sub); }
+.t-cell.url-cell {
+  font-family:var(--mono); font-size:11px;
+  color:var(--text); overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap;
+}
+
+@media(max-width:768px) {
+  .scanner-hero { padding:40px 20px 0; }
+  .scanner-box  { padding:22px; }
+  .url-row      { flex-direction:column; }
+  .t-row        { grid-template-columns:2fr 1fr 1fr; }
+  .t-row > :last-child { display:none; }
+}
+</style>
+</head>
+<body data-page="scanner">
+<div id="nav-holder"></div>
+
+<div class="page-wrap">
+  <div class="scanner-hero">
+    <div class="section-label reveal">// URL Scanner</div>
+    <h1 class="section-title reveal">Scan Any <span>URL</span></h1>
+    <p class="section-sub reveal">Paste a URL below for a full two-stage threat assessment. No blocking — analysis only.</p>
+
+    <div class="scanner-box">
+      <div class="url-row">
+        <input type="text" class="url-input" id="url-input"
+               placeholder="https://example.com or any suspicious URL…"
+               onkeydown="if(event.key==='Enter') scan()">
+        <button class="btn btn-primary" id="scan-btn" onclick="scan()">SCAN</button>
+      </div>
+      <div class="scan-hint">MODE: VIEWER &nbsp;·&nbsp; 2-Stage ML Analysis &nbsp;·&nbsp; No enforcement</div>
+
+      <!-- Loader -->
+      <div id="loader">
+        <div class="stage-list">
+          <div class="stage" id="s1"><div class="stage-ico" id="i1"></div>Extracting URL structure &amp; domain features…</div>
+          <div class="stage" id="s2"><div class="stage-ico" id="i2"></div>Running Stage 1 ML prediction…</div>
+          <div class="stage" id="s3"><div class="stage-ico" id="i3"></div>Deep behavioral analysis (Stage 2)…</div>
+          <div class="stage" id="s4"><div class="stage-ico" id="i4"></div>Generating threat report…</div>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div id="result-card">
+        <div class="result-head">
+          <div class="r-icon" id="r-icon"></div>
+          <div class="r-info">
+            <div class="r-status" id="r-status"></div>
+            <div class="r-url" id="r-url"></div>
+          </div>
+          <div class="r-score" id="r-score"></div>
+        </div>
+        <div class="result-body">
+          <div class="reasons-title">// Detection Signals</div>
+          <div id="r-reasons"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent scans -->
+  <section class="section">
+    <div class="section-label reveal">// Recent Scans</div>
+    <h2 class="section-title reveal">Scan <span>History</span></h2>
+    <div class="table-wrap reveal" style="margin-top:28px">
+      <div class="t-row t-head">
+        <div class="t-cell">URL</div>
+        <div class="t-cell">Score</div>
+        <div class="t-cell">Status</div>
+        <div class="t-cell">Source</div>
+      </div>
+      <div id="recent-body">
+        <div class="t-row">
+          <div class="t-cell url-cell" colspan="4" style="color:var(--text-muted);font-family:var(--mono);font-size:11px">
+            Scan a URL above to see results here
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="footer-holder"></div>
+<script src="main.js"></script>
+<script>
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+const stages  = ['s1','s2','s3','s4'];
+const icons   = ['i1','i2','i3','i4'];
+const scanHistory = [];
+
+async function scan() {
+  const url = document.getElementById('url-input').value.trim();
+  if (!url) { showToast('⚠ Enter a URL first', 'warn'); return; }
+
+  const btn = document.getElementById('scan-btn');
+  btn.disabled = true;
+  document.getElementById('result-card').style.display = 'none';
+  document.getElementById('loader').style.display = 'block';
+
+  // Animate stages
+  for (let i = 0; i < stages.length; i++) {
+    document.getElementById(stages[i]).classList.add('running');
+    document.getElementById(icons[i]).classList.add('spin');
+    await sleep(550 + Math.random() * 350);
+  }
+
+  let data;
+  try {
+    data = await checkURL(url, 'viewer');
+  } catch(e) {
+    data = demoResult(url);
+  }
+
+  stages.forEach((s,i) => {
+    document.getElementById(s).classList.remove('running');
+    document.getElementById(s).classList.add('done');
+    document.getElementById(icons[i]).classList.remove('spin');
+    document.getElementById(icons[i]).textContent = '✓';
+  });
+
+  await sleep(300);
+  document.getElementById('loader').style.display = 'none';
+  stages.forEach(s => document.getElementById(s).classList.remove('done'));
+  icons.forEach(id => { document.getElementById(id).className='stage-ico'; document.getElementById(id).textContent=''; });
+
+  showResult(url, data);
+  addToHistory(url, data);
+  btn.disabled = false;
+}
+
+function showResult(url, data) {
+  const { risk_score, status, reasons } = data;
+  const card = document.getElementById('result-card');
+  const themes = { safe:'t-safe', suspicious:'t-suspicious', phishing:'t-phishing' };
+  const icons  = { safe:'🛡️', suspicious:'⚠️', phishing:'🚫' };
+  const colors = { safe:'var(--green)', suspicious:'var(--yellow)', phishing:'var(--red)' };
+
+  card.className = themes[status] || 't-safe';
+  card.style.display = 'block';
+  document.getElementById('r-icon').textContent = icons[status] || '🛡️';
+  document.getElementById('r-status').textContent = (status||'').toUpperCase();
+  document.getElementById('r-url').textContent = url.length > 65 ? url.slice(0,65)+'…' : url;
+  document.getElementById('r-score').textContent = Math.round(risk_score) + '%';
+
+  const col = colors[status] || 'var(--green)';
+  document.getElementById('r-reasons').innerHTML = (reasons||['Analysis complete']).map(r =>
+    `<div class="reason"><span class="reason-arrow" style="color:${col}">▸</span><span>${r}</span></div>`
+  ).join('');
+}
+
+function addToHistory(url, data) {
+  scanHistory.unshift({ url, ...data });
+  if (scanHistory.length > 20) scanHistory.pop();
+  const body = document.getElementById('recent-body');
+  body.innerHTML = scanHistory.map(s => {
+    const col = s.status === 'phishing' ? 'var(--red)' : s.status === 'suspicious' ? 'var(--yellow)' : 'var(--green)';
+    const domain = (() => { try { return new URL(s.url).hostname; } catch(_) { return s.url.slice(0,25); } })();
+    return `<div class="t-row">
+      <div class="t-cell url-cell">${s.url.length > 42 ? s.url.slice(0,42)+'…' : s.url}</div>
+      <div class="t-cell" style="font-family:var(--mono);color:${col}">${Math.round(s.risk_score)}%</div>
+      <div class="t-cell"><span class="badge badge-${s.status}">${s.status}</span></div>
+      <div class="t-cell" style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">web</div>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>

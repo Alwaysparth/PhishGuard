@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishGuard — Team</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.team-hero { padding:64px 48px 40px; max-width:700px; }
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 22px;
+  padding: 0 48px 80px;
+}
+
+/* Card */
+.tm-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: default;
+  transition: border-color 0.3s, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.tm-card::before {
+  content:'';
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,255,170,0.07), transparent 65%);
+  opacity:0; transition:opacity 0.35s;
+}
+
+.tm-card:hover {
+  border-color: var(--border-mid);
+  transform: translateY(-8px);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+}
+
+.tm-card:hover::before { opacity:1; }
+
+/* Avatar */
+.tm-avatar {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 26px; font-weight: 700;
+  margin-bottom: 20px;
+  border: 2px solid var(--border);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.tm-card:hover .tm-avatar {
+  box-shadow: 0 0 0 6px rgba(0,255,170,0.08);
+}
+
+/* Name & role */
+.tm-name {
+  font-family: var(--display);
+  font-size: 15px; font-weight: 700;
+  letter-spacing: 1px; margin-bottom: 4px;
+  color: var(--text); position: relative; z-index:1;
+}
+
+.tm-role {
+  font-family: var(--mono);
+  font-size: 11px; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 8px;
+  position: relative; z-index: 1;
+}
+
+.tm-bio {
+  font-size: 13px; color: var(--text-sub);
+  line-height: 1.6; margin-bottom: 20px;
+  position: relative; z-index: 1;
+}
+
+/* Social buttons */
+.tm-links {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center;
+  position: relative; z-index: 1;
+}
+
+.tm-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-sub);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.tm-btn:hover {
+  background: rgba(0,255,170,0.07);
+  border-color: rgba(0,255,170,0.3);
+  color: var(--green);
+  transform: translateY(-1px);
+}
+
+.tm-btn svg {
+  width: 13px; height: 13px;
+  fill: currentColor; flex-shrink: 0;
+}
+
+/* Specific social colors on hover */
+.tm-btn.github:hover  { color: var(--text); border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.05); }
+.tm-btn.linkedin:hover{ color: #0A66C2; border-color: rgba(10,102,194,0.4); background: rgba(10,102,194,0.07); }
+.tm-btn.email:hover   { color: var(--green); border-color: var(--border-mid); }
+.tm-btn.twitter:hover { color: #1d9bf0; border-color: rgba(29,155,240,0.35); background: rgba(29,155,240,0.07); }
+.tm-btn.website:hover { color: var(--blue); border-color: rgba(0,212,255,0.3); }
+
+/* Divider between name section and links */
+.tm-divider {
+  width: 100%; height: 1px;
+  background: var(--border);
+  margin-bottom: 18px;
+  position: relative; z-index:1;
+}
+
+@media(max-width:768px) {
+  .team-hero { padding:40px 20px 28px; }
+  .team-grid { padding:0 16px 60px; grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body data-page="team">
+<div id="nav-holder"></div>
+
+<div class="page-wrap">
+  <div class="team-hero">
+    <div class="section-label reveal">// The People</div>
+    <h1 class="section-title reveal">Meet the <span>Team</span></h1>
+    <p class="section-sub reveal">The researchers and engineers behind PhishGuard's ML pipeline, infrastructure, and user experience.</p>
+  </div>
+
+  <div class="team-grid" id="team-grid"></div>
+</div>
+
+<div id="footer-holder"></div>
+<script src="main.js"></script>
+<script>
+const team = [
+  {
+    initials: 'AS', color: '#00ffaa', bgAlpha: 'rgba(0,255,170,0.12)',
+    name: 'Arjun Sharma', role: 'ML Engineer',
+    bio: 'Designed the two-stage Random Forest pipeline, feature engineering, and model evaluation framework.',
+    email: 'arjun@phishguard.io',
+    github: 'https://github.com/arjun-sharma',
+    linkedin: 'https://linkedin.com/in/arjun-sharma',
+    twitter: 'https://twitter.com/arjun_ml',
+    website: 'https://arjunsharma.dev',
+  },
+  {
+    initials: 'PN', color: '#00d4ff', bgAlpha: 'rgba(0,212,255,0.12)',
+    name: 'Priya Nair', role: 'Backend Developer',
+    bio: 'Built the FastAPI server, SQLite database schema, REST endpoints, and two-stage detection pipeline.',
+    email: 'priya@phishguard.io',
+    github: 'https://github.com/priya-nair',
+    linkedin: 'https://linkedin.com/in/priya-nair',
+    twitter: 'https://twitter.com/priya_dev',
+    website: '',
+  },
+  {
+    initials: 'RG', color: '#ffd700', bgAlpha: 'rgba(255,215,0,0.12)',
+    name: 'Rahul Gupta', role: 'Security Researcher',
+    bio: 'Researched phishing attack patterns, curated the training dataset, and validated detection thresholds.',
+    email: 'rahul@phishguard.io',
+    github: 'https://github.com/rahul-sec',
+    linkedin: 'https://linkedin.com/in/rahul-gupta-sec',
+    twitter: '',
+    website: 'https://rahulgupta.security',
+  },
+  {
+    initials: 'SP', color: '#b347ea', bgAlpha: 'rgba(179,71,234,0.12)',
+    name: 'Sneha Patel', role: 'Frontend Developer',
+    bio: 'Designed and built the web dashboard, analytics charts, and the cybersecurity-themed UI system.',
+    email: 'sneha@phishguard.io',
+    github: 'https://github.com/sneha-patel',
+    linkedin: 'https://linkedin.com/in/sneha-patel',
+    twitter: 'https://twitter.com/sneha_fe',
+    website: 'https://snehapatel.design',
+  },
+  {
+    initials: 'VR', color: '#ff3366', bgAlpha: 'rgba(255,51,102,0.12)',
+    name: 'Vikram Reddy', role: 'DevOps & Infrastructure',
+    bio: 'Manages deployment pipelines, Docker setup, environment configuration, and system reliability.',
+    email: 'vikram@phishguard.io',
+    github: 'https://github.com/vikram-reddy',
+    linkedin: 'https://linkedin.com/in/vikram-reddy',
+    twitter: '',
+    website: '',
+  },
+  {
+    initials: 'AK', color: '#ff8c00', bgAlpha: 'rgba(255,140,0,0.12)',
+    name: 'Ananya Kumar', role: 'Data Scientist',
+    bio: 'Handles dataset curation, feature correlation analysis, cross-validation strategy, and model benchmarking.',
+    email: 'ananya@phishguard.io',
+    github: 'https://github.com/ananya-kumar',
+    linkedin: 'https://linkedin.com/in/ananya-kumar',
+    twitter: 'https://twitter.com/ananya_data',
+    website: '',
+  },
+];
+
+// SVG icons
+const icons = {
+  github: `<svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.72-4.04-1.61-4.04-1.61-.54-1.37-1.32-1.74-1.32-1.74-1.08-.74.08-.72.08-.72 1.2.08 1.83 1.23 1.83 1.23 1.06 1.82 2.79 1.29 3.47.99.1-.77.41-1.29.75-1.59-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 013-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.65.24 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>`,
+  linkedin: `<svg viewBox="0 0 24 24"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.12 2.06 2.06 0 010 4.12zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>`,
+  twitter: `<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`,
+  email: `<svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>`,
+  website: `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
+};
+
+function buildCard(m, i) {
+  const links = [];
+
+  if (m.email) links.push(`
+    <a class="tm-btn email" href="mailto:${m.email}" title="Send email">
+      ${icons.email} Email
+    </a>`);
+
+  if (m.github) links.push(`
+    <a class="tm-btn github" href="${m.github}" target="_blank" rel="noopener" title="GitHub profile">
+      ${icons.github} GitHub
+    </a>`);
+
+  if (m.linkedin) links.push(`
+    <a class="tm-btn linkedin" href="${m.linkedin}" target="_blank" rel="noopener" title="LinkedIn profile">
+      ${icons.linkedin} LinkedIn
+    </a>`);
+
+  if (m.twitter) links.push(`
+    <a class="tm-btn twitter" href="${m.twitter}" target="_blank" rel="noopener" title="Twitter / X profile">
+      ${icons.twitter} Twitter
+    </a>`);
+
+  if (m.website) links.push(`
+    <a class="tm-btn website" href="${m.website}" target="_blank" rel="noopener" title="Personal website">
+      ${icons.website} Website
+    </a>`);
+
+  return `
+    <div class="tm-card reveal" data-delay="${i * 80}" style="animation-delay:${i*80}ms">
+      <div class="tm-avatar" style="background:${m.bgAlpha};color:${m.color};border-color:${m.color}30">
+        ${m.initials}
+      </div>
+      <div class="tm-name">${m.name}</div>
+      <div class="tm-role" style="color:${m.color}">${m.role}</div>
+      <p class="tm-bio">${m.bio}</p>
+      <div class="tm-divider"></div>
+      <div class="tm-links">${links.join('')}</div>
+    </div>`;
+}
+
+document.getElementById('team-grid').innerHTML = team.map((m,i) => buildCard(m,i)).join('');
+</script>
+</body>
+</html>

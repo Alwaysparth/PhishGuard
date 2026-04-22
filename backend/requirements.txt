@@ -1,0 +1,25 @@
+# PhishGuard Backend — Python Dependencies
+# Install with:  pip install -r requirements.txt
+
+# ── Web Framework ─────────────────────────────────────────────────────────────
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.6.0
+pydantic-settings>=2.2.0
+
+# ── ML / Numerical ────────────────────────────────────────────────────────────
+scikit-learn>=1.4.0
+xgboost>=2.0.0
+numpy>=1.26.0
+pandas>=2.2.0
+
+# ── URL & Domain Parsing ─────────────────────────────────────────────────────
+tldextract>=5.1.0
+python-whois>=0.9.0
+
+# ── HTTP Client (for Stage 2 real HTTP fetching in production) ────────────────
+aiohttp>=3.9.0
+requests>=2.31.0
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishGuard — AI-Powered Phishing Detection</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ── Hero ──────────────────────────────────────────────────── */
+.hero {
+  min-height: calc(100vh - var(--nav-h));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px 80px;
+  text-align: center;
+  position: relative;
+}
+
+.hero-glow {
+  position: absolute;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(0,255,170,0.055) 0%, transparent 68%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.hero-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--green);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.1s forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.hero h1 {
+  font-family: var(--display);
+  font-size: clamp(38px, 7vw, 82px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: 3px;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.25s forwards;
+}
+
+.hero h1 .accent { color: var(--green); text-shadow: var(--glow-g); }
+
+.hero-desc {
+  font-size: 18px;
+  color: var(--text-sub);
+  max-width: 520px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.4s forwards;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.55s forwards;
+}
+
+/* ── Features grid ────────────────────────────────────────── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 30px;
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card:hover {
+  border-color: var(--border-mid);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.45);
+}
+
+.feature-icon {
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 18px;
+}
+
+.feature-title {
+  font-family: var(--display);
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.feature-desc {
+  font-size: 14px;
+  color: var(--text-sub);
+  line-height: 1.65;
+}
+
+/* ── Stats row ────────────────────────────────────────────── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.stat-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.stat-num {
+  font-family: var(--display);
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--green);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-lbl {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body data-page="home">
+<div id="nav-holder"></div>
+
+<div class="page-wrap">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-tag">
+      <div class="status-dot"></div>
+      AI-Powered Threat Detection · Live
+    </div>
+    <h1>SHIELD AGAINST<br><span class="accent">PHISHING</span><br>ATTACKS</h1>
+    <p class="hero-desc">Two-stage machine learning pipeline that detects phishing URLs in real time. Trusted by the browser extension and web dashboard.</p>
+    <div class="hero-actions">
+      <a href="scanner.html" class="btn btn-primary">Try Scanner</a>
+      <a href="workflow.html" class="btn btn-outline">See How It Works</a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Features -->
+  <section class="section reveal">
+    <div class="section-label">// Core Capabilities</div>
+    <h2 class="section-title">Built for <span>Real Threats</span></h2>
+    <p class="section-sub" style="margin-bottom:48px">Every component is engineered to catch modern phishing techniques — from brand impersonation to homograph attacks.</p>
+
+    <div class="features-grid">
+      <div class="feature-card reveal" data-delay="0">
+        <div class="feature-icon" style="background:rgba(0,255,170,0.10)">🛡️</div>
+        <div class="feature-title">2-Stage ML Pipeline</div>
+        <p class="feature-desc">Stage 1 scores URL structure in milliseconds. Stage 2 dives deep into behavioral signals for grey-zone URLs.</p>
+      </div>
+      <div class="feature-card reveal" data-delay="80">
+        <div class="feature-icon" style="background:rgba(0,212,255,0.10)">⚡</div>
+        <div class="feature-title">Real-Time Protection</div>
+        <p class="feature-desc">Browser extension intercepts navigation and blocks phishing pages before they load — no delay, no compromise.</p>
+      </div>
+      <div class="feature-card reveal" data-delay="160">
+        <div class="feature-icon" style="background:rgba(255,215,0,0.10)">🔬</div>
+        <div class="feature-title">47 Feature Signals</div>
+        <p class="feature-desc">URL entropy, brand similarity, TLD reputation, keyword density, encoding tricks — all extracted instantly.</p>
+      </div>
+      <div class="feature-card reveal" data-delay="240">
+        <div class="feature-icon" style="background:rgba(179,71,234,0.10)">📊</div>
+        <div class="feature-title">Live Analytics</div>
+        <p class="feature-desc">Real-time charts, scan history, model accuracy metrics. See every threat caught, every false positive reviewed.</p>
+      </div>
+      <div class="feature-card reveal" data-delay="320">
+        <div class="feature-icon" style="background:rgba(255,51,102,0.10)">🚫</div>
+        <div class="feature-title">Auto Blacklisting</div>
+        <p class="feature-desc">High-confidence phishing domains are auto-added to the database. Every scan makes the system smarter.</p>
+      </div>
+      <div class="feature-card reveal" data-delay="400">
+        <div class="feature-icon" style="background:rgba(255,140,0,0.10)">🔗</div>
+        <div class="feature-title">REST API</div>
+        <p class="feature-desc">Single <code style="color:var(--green);font-size:13px">POST /check-url</code> endpoint. Viewer mode for analysis, protect mode for enforcement.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Stats -->
+  <section class="section reveal">
+    <div class="section-label">// By the Numbers</div>
+    <h2 class="section-title">Model <span>Performance</span></h2>
+    <div class="stats-row" style="margin-top:40px">
+      <div class="stat-box reveal" data-delay="0">
+        <div class="stat-num">98%</div>
+        <div class="stat-lbl">Accuracy</div>
+      </div>
+      <div class="stat-box reveal" data-delay="80">
+        <div class="stat-num" style="color:var(--blue)">97.5%</div>
+        <div class="stat-lbl">Precision</div>
+      </div>
+      <div class="stat-box reveal" data-delay="160">
+        <div class="stat-num" style="color:var(--purple)">98.5%</div>
+        <div class="stat-lbl">Recall</div>
+      </div>
+      <div class="stat-box reveal" data-delay="240">
+        <div class="stat-num" style="color:var(--yellow)">1.5%</div>
+        <div class="stat-lbl">Miss Rate</div>
+      </div>
+      <div class="stat-box reveal" data-delay="320">
+        <div class="stat-num" style="color:var(--orange)">47</div>
+        <div class="stat-lbl">Features</div>
+      </div>
+      <div class="stat-box reveal" data-delay="400">
+        <div class="stat-num" style="color:var(--red)">2</div>
+        <div class="stat-lbl">ML Stages</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" style="text-align:center">
+    <div class="card card-top-line reveal" style="max-width:640px;margin:0 auto;padding:48px">
+      <div class="section-label" style="justify-content:center;display:flex">// Get Started</div>
+      <h2 class="section-title" style="max-width:none">Start Detecting <span>Phishing</span> Now</h2>
+      <p class="section-sub" style="margin:0 auto 36px">Paste any URL into the scanner and get a full threat report in seconds.</p>
+      <a href="scanner.html" class="btn btn-primary">Open Scanner →</a>
+    </div>
+  </section>
+</div>
+
+<div id="footer-holder"></div>
+<script src="main.js"></script>
+</body>
+</html>

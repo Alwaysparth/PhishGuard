@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishGuard — Contact</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.c-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 40px;
+  padding: 64px 48px 80px;
+  max-width: 1100px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+/* Info column */
+.c-info { display: flex; flex-direction: column; gap: 16px; }
+
+.c-info-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+  display: flex; gap: 16px; align-items: flex-start;
+  transition: border-color var(--transition), transform var(--transition);
+}
+
+.c-info-card:hover { border-color: var(--border-mid); transform: translateX(4px); }
+
+.c-icon {
+  width: 42px; height: 42px; flex-shrink: 0;
+  border-radius: 10px;
+  background: rgba(0,255,170,0.10);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+
+.c-label {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 2.5px; color: var(--text-muted);
+  text-transform: uppercase; margin-bottom: 6px;
+}
+
+.c-value {
+  color: var(--green); font-size: 14px;
+  text-decoration: none; transition: opacity 0.2s;
+}
+
+.c-value:hover { opacity: 0.75; }
+
+/* API quick ref */
+.api-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 22px;
+  margin-top: 4px;
+}
+
+.api-code {
+  font-family: var(--mono); font-size: 12px;
+  color: var(--green); line-height: 2;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* Form column */
+.c-form-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 36px;
+  position: relative; overflow: hidden;
+}
+
+.c-form-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+  opacity:0.5;
+}
+
+.form-title {
+  font-family: var(--display); font-size: 16px;
+  letter-spacing: 2px; color: var(--text);
+  margin-bottom: 28px; text-transform: uppercase;
+}
+
+.fg { margin-bottom: 20px; }
+
+.fl {
+  display: block; font-family: var(--mono);
+  font-size: 10px; letter-spacing: 2.5px;
+  color: var(--text-muted); text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.fi, .ft {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--body); font-size: 15px;
+  padding: 12px 16px; border-radius: 8px; outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.fi::placeholder, .ft::placeholder { color: var(--text-muted); }
+.fi:focus, .ft:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0,255,170,0.08);
+}
+
+.ft { resize: vertical; min-height: 120px; }
+
+.fg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.submit-btn {
+  width: 100%; padding: 14px;
+  background: transparent;
+  border: 1px solid var(--border-mid);
+  color: var(--green);
+  font-family: var(--display); font-size: 12px;
+  font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; border-radius: 8px;
+  cursor: pointer; transition: all 0.2s;
+}
+
+.submit-btn:hover {
+  background: var(--green); color: var(--bg);
+  box-shadow: var(--glow-g); transform: translateY(-1px);
+}
+
+.submit-btn:active { transform: translateY(0); }
+
+/* Server status indicator */
+.srv-status {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  background: rgba(0,255,170,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px; margin-bottom: 20px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 1px; color: var(--text-sub);
+}
+
+@media(max-width:900px) {
+  .c-layout { grid-template-columns: 1fr; padding:40px 20px 60px; }
+  .fg-row   { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body data-page="contact">
+<div id="nav-holder"></div>
+
+<div class="page-wrap">
+  <div style="padding:64px 48px 0 48px;max-width:600px">
+    <div class="section-label reveal">// Get in Touch</div>
+    <h1 class="section-title reveal">Contact <span>Us</span></h1>
+    <p class="section-sub reveal">Questions about the API, bugs, collaboration, or just want to say hello — we'd love to hear from you.</p>
+  </div>
+
+  <div class="c-layout">
+    <!-- Left: Info -->
+    <div class="c-info">
+      <div class="c-info-card reveal">
+        <div class="c-icon">📧</div>
+        <div>
+          <div class="c-label">Email</div>
+          <a href="mailto:team@phishguard.io" class="c-value">team@phishguard.io</a>
+        </div>
+      </div>
+
+      <div class="c-info-card reveal" data-delay="60">
+        <div class="c-icon">🐙</div>
+        <div>
+          <div class="c-label">GitHub Repository</div>
+          <a href="https://github.com/phishguard/phishguard" target="_blank" class="c-value">github.com/phishguard</a>
+        </div>
+      </div>
+
+      <div class="c-info-card reveal" data-delay="120">
+        <div class="c-icon">🛡️</div>
+        <div>
+          <div class="c-label">API Endpoint</div>
+          <span class="c-value" style="font-family:var(--mono);font-size:13px">POST /check-url</span>
+        </div>
+      </div>
+
+      <div class="c-info-card reveal" data-delay="180">
+        <div class="c-icon">💼</div>
+        <div>
+          <div class="c-label">LinkedIn</div>
+          <a href="https://linkedin.com/company/phishguard" target="_blank" class="c-value">linkedin.com/company/phishguard</a>
+        </div>
+      </div>
+
+      <div class="c-info-card reveal" data-delay="240">
+        <div class="c-icon">🐦</div>
+        <div>
+          <div class="c-label">Twitter / X</div>
+          <a href="https://twitter.com/phishguard_ai" target="_blank" class="c-value">@phishguard_ai</a>
+        </div>
+      </div>
+
+      <!-- API quick reference -->
+      <div class="api-box reveal" data-delay="300">
+        <div class="c-label" style="margin-bottom:12px">API Quick Reference</div>
+        <pre class="api-code">{
+  "url": "https://example.com",
+  "mode": "viewer" | "protect"
+}</pre>
+      </div>
+
+      <!-- Server status -->
+      <div class="c-info-card reveal" data-delay="360" style="flex-direction:column;gap:10px">
+        <div class="c-label">Server Status</div>
+        <div class="srv-status" id="srv-status">
+          <div class="status-dot"></div>
+          Checking API connection…
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Form -->
+    <div class="c-form-card reveal" data-delay="80">
+      <div class="form-title">Send a Message</div>
+
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl" for="c-name">Name</label>
+          <input class="fi" id="c-name" type="text" placeholder="Your name">
+        </div>
+        <div class="fg">
+          <label class="fl" for="c-email">Email</label>
+          <input class="fi" id="c-email" type="email" placeholder="your@email.com">
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fl" for="c-subject">Subject</label>
+        <input class="fi" id="c-subject" type="text" placeholder="Bug report, feature request, question…">
+      </div>
+
+      <div class="fg">
+        <label class="fl" for="c-topic">Topic</label>
+        <select class="fi" id="c-topic" style="cursor:pointer">
+          <option value="">Select a topic…</option>
+          <option>API Integration</option>
+          <option>Browser Extension</option>
+          <option>ML Model / Accuracy</option>
+          <option>Bug Report</option>
+          <option>Feature Request</option>
+          <option>Collaboration / Partnership</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="fg">
+        <label class="fl" for="c-msg">Message</label>
+        <textarea class="ft" id="c-msg" placeholder="Tell us about your use case, the bug you found, or what you'd like to see built next…"></textarea>
+      </div>
+
+      <button class="submit-btn" onclick="submitForm()">SEND MESSAGE →</button>
+    </div>
+  </div>
+</div>
+
+<div id="footer-holder"></div>
+<script src="main.js"></script>
+<script>
+// Server status check
+async function checkServer() {
+  const el = document.getElementById('srv-status');
+  try {
+    const res = await fetch('http://localhost:8000/api/v1/health', { signal: AbortSignal.timeout(4000) });
+    if (res.ok) {
+      el.innerHTML = `<div class="status-dot"></div> API server online &nbsp;·&nbsp; localhost:8000`;
+      el.style.borderColor = 'rgba(0,255,170,0.2)';
+    } else {
+      throw new Error('not ok');
+    }
+  } catch(e) {
+    el.innerHTML = `<div class="status-dot" style="background:var(--red);box-shadow:var(--glow-r)"></div>
+      API offline &nbsp;·&nbsp; Run: python run.py`;
+    el.style.borderColor = 'rgba(255,51,102,0.2)';
+  }
+}
+
+function submitForm() {
+  const name    = document.getElementById('c-name').value.trim();
+  const email   = document.getElementById('c-email').value.trim();
+  const subject = document.getElementById('c-subject').value.trim();
+  const msg     = document.getElementById('c-msg').value.trim();
+
+  if (!name)    { showToast('⚠ Please enter your name', 'warn'); return; }
+  if (!email)   { showToast('⚠ Please enter your email', 'warn'); return; }
+  if (!msg)     { showToast('⚠ Please enter a message', 'warn'); return; }
+
+  showToast('✓ Message sent! We\'ll be in touch.');
+  document.getElementById('c-name').value    = '';
+  document.getElementById('c-email').value   = '';
+  document.getElementById('c-subject').value = '';
+  document.getElementById('c-msg').value     = '';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(checkServer, 800);
+});
+</script>
+</body>
+</html>

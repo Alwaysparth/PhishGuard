@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishGuard — Detection Workflow</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ── Workflow Hero ──────────────────────────────────────────── */
+.wf-hero {
+  padding: 64px 80px 48px;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* ── Timeline ──────────────────────────────────────────────── */
+.timeline {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 48px 80px;
+  position: relative;
+}
+
+/* Central vertical line */
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%; width: 1px;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    var(--border-mid) 5%,
+    var(--border-mid) 95%,
+    transparent 100%);
+  transform: translateX(-50%);
+}
+
+/* ── Step ──────────────────────────────────────────────────── */
+.step {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  gap: 0;
+  margin-bottom: 48px;
+  align-items: start;
+}
+
+/* Alternate: even steps flip content */
+.step.right .step-content { grid-column: 1; }
+.step.right .step-node    { grid-column: 2; }
+.step.right .step-side    { grid-column: 3; }
+
+.step.left .step-side    { grid-column: 1; order: -1; }
+.step.left .step-node    { grid-column: 2; }
+.step.left .step-content { grid-column: 3; }
+
+/* Node circle in center */
+.step-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 28px;
+  z-index: 2;
+}
+
+.node-circle {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 2px solid var(--border-mid);
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green);
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.step:hover .node-circle {
+  border-color: var(--green);
+  box-shadow: 0 0 0 6px rgba(0,255,170,0.08), var(--glow-g);
+}
+
+.node-icon { font-size: 18px; }
+
+/* Content card */
+.step-content {
+  padding: 8px 20px 0;
+}
+
+.step-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px 24px;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.step-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, var(--green), transparent);
+  opacity:0;
+  transition: opacity 0.3s;
+}
+
+.step:hover .step-card {
+  border-color: var(--border-mid);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(0,0,0,0.38);
+}
+
+.step:hover .step-card::before { opacity:0.6; }
+
+.step-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--green);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  opacity: 0.7;
+}
+
+.step-title {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.step-desc {
+  font-size: 14px;
+  color: var(--text-sub);
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+
+.step-action {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--green);
+  letter-spacing: 1px;
+  opacity: 0.8;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+}
+
+/* Side insight */
+.step-side {
+  padding: 28px 20px 0;
+}
+
+.side-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  border-left: 3px solid var(--border-mid);
+}
+
+.side-box.green-accent { border-left-color: var(--green); }
+.side-box.blue-accent  { border-left-color: var(--blue); }
+.side-box.yellow-accent{ border-left-color: var(--yellow); }
+.side-box.purple-accent{ border-left-color: var(--purple); }
+.side-box.red-accent   { border-left-color: var(--red); }
+.side-box.orange-accent{ border-left-color: var(--orange); }
+
+.side-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.side-box.green-accent  .side-label { color: var(--green); }
+.side-box.blue-accent   .side-label { color: var(--blue); }
+.side-box.yellow-accent .side-label { color: var(--yellow); }
+.side-box.purple-accent .side-label { color: var(--purple); }
+.side-box.red-accent    .side-label { color: var(--red); }
+.side-box.orange-accent .side-label { color: var(--orange); }
+
+.side-text {
+  font-size: 13px;
+  color: var(--text-sub);
+  line-height: 1.6;
+}
+
+/* Decision node */
+.decision-node {
+  max-width: 700px;
+  margin: 0 auto 48px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-mid);
+  border-radius: 14px;
+  padding: 28px 32px;
+  text-align: center;
+  position: relative;
+}
+
+.decision-node::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, transparent, var(--yellow), transparent);
+  opacity:0.7;
+}
+
+.decision-title {
+  font-family: var(--display);
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--yellow);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.decision-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.d-branch {
+  padding: 14px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid;
+}
+
+.d-safe       { background:rgba(0,255,170,0.06); border-color:rgba(0,255,170,0.25); color:var(--green); }
+.d-grey       { background:rgba(255,215,0,0.06); border-color:rgba(255,215,0,0.25); color:var(--yellow); }
+.d-phishing   { background:rgba(255,51,102,0.06); border-color:rgba(255,51,102,0.25); color:var(--red); }
+
+.d-thresh {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.d-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+/* Summary metrics bar */
+.metrics-bar {
+  max-width: 900px; margin: 0 auto 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  padding: 0 48px 80px;
+}
+
+.metric-pill {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+}
+
+.metric-val {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.metric-lbl {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.metric-bar-track {
+  height: 3px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 2px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.metric-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .wf-hero { padding: 48px 20px 32px; }
+  .timeline { padding: 0 16px 60px; }
+  .timeline::before { left: 24px; }
+
+  .step {
+    grid-template-columns: 48px 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .step.right .step-node,
+  .step.left  .step-node  { grid-column: 1; grid-row: 1; }
+
+  .step.right .step-content,
+  .step.left  .step-content { grid-column: 2; grid-row: 1; }
+
+  .step.right .step-side,
+  .step.left  .step-side  { grid-column: 1 / -1; grid-row: 2; padding: 12px 8px 0; }
+
+  .decision-grid  { grid-template-columns: 1fr; }
+  .metrics-bar    { padding: 0 16px 60px; }
+  .node-circle    { width:38px; height:38px; font-size:12px; }
+}
+</style>
+</head>
+<body data-page="workflow">
+<div id="nav-holder"></div>
+
+<div class="page-wrap">
+
+  <!-- Hero -->
+  <div class="wf-hero">
+    <div class="section-label reveal" style="justify-content:center;display:flex">// Detection Pipeline</div>
+    <h1 class="section-title reveal">Phishing Detection <span>Workflow</span></h1>
+    <p class="section-sub reveal" style="margin:0 auto">The detailed, ten-stage process our ML engine uses — from URL ingestion to final threat classification and action enforcement.</p>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline">
+
+    <!-- Step 1 -->
+    <div class="step right reveal">
+      <div class="step-content">
+        <div class="step-card">
+          <div class="step-num">Step 01</div>
+          <div class="step-title">Client Request</div>
+          <p class="step-desc">The client — either the web dashboard or browser extension — sends a <code style="color:var(--green);font-size:12px">POST /check-url</code> request with a URL and mode flag.</p>
+          <div class="step-action">Action: Validate input · Normalise URL scheme · Extract mode</div>
+        </div>
+      </div>
+      <div class="step-node">
+        <div class="node-circle"><span class="node-icon">📡</span></div>
+      </div>
+      <div class="step-side">
+        <div class="side-box blue-accent">
+          <div class="side-label">Mode Flags</div>
+          <p class="side-text"><strong style="color:var(--text)">viewer</strong> — web dashboard, analysis only, no blocking enforced.<br><br>
+          <strong style="color:var(--text)">protect</strong> — browser extension, full block/warn/allow enforcement.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step left reveal">
+      <div class="step-side">
+        <div class="side-box green-accent">
+          <div class="side-label">Database Lookup</div>
+          <p class="side-text">The domain cache avoids redundant ML computation for known-good or known-bad domains. Whitelist hits return instantly with score 0.</p>
+        </div>
+      </div>
+      <div class="step-node">
+        <div class="node-circle"><span class="node-icon">🗄️</span></div>
+      </div>
+      <div class="step-content">
+        <div class="step-card">
+          <div class="step-num">Step 02</div>
+          <div class="step-title">Domain Extraction &amp; DB Lookup</div>
+          <p class="step-desc">The registered domain is extracted via tldextract. The database is checked for a whitelist or blacklist entry before any ML work is done.</p>
+          <div class="step-action">Action: Extract domain · Query SQLite · Return stored result on hit</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step right reveal">
+      <div class="step-content">
+        <div class="step-card">
+          <div class="step-num">Step 03</div>
+          <div class="step-title">Stage 1 — Feature Extraction</div>
+          <p class="step-desc">31 URL-level features are extracted in under 1ms: length, character counts, entropy, subdomain depth, HTTPS flag, brand similarity, keyword count, suspicious TLD.</p>
+          <div class="step-action">Goal: Build the Stage 1 feature vector for ML input</div>
+        </div>
+      </div>
+      <div class="step-node">
+        <div class="node-circle"><span class="node-icon">🔬</span></div>
+      </div>
+      <div class="step-side">
+        <div class="side-box purple-accent">
+          <div class="side-label">Key Features</div>
+          <p class="side-text">url_length · domain_entropy · brand_in_url · keyword_count · suspicious_tld · has_ip · subdomain_depth · digit_ratio</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step left reveal">
+      <div class="step-side">
+        <div class="side-box orange-accent">
+          <div class="side-label">Random Forest</div>
+          <p class="side-text">200 decision trees trained on balanced real + synthetic data. StandardScaler normalises features before prediction. Output is P(phishing) in [0,1].</p>
+        </div>
+      </div>
+      <div class="step-node">
+        <div class="node-circle"><span class="node-icon">🤖</span></div>
+      </div>
+      <div class="step-content">
+        <div class="step-card">
+          <div class="step-num">Step 04</div>
+          <div class="step-title">Stage 1 ML Prediction (S1)</div>
+          <p class="step-desc">The Random Forest classifier predicts P(phishing). The output is scaled to a 0–100 risk score. This is the fast first-pass filter.</p>
+          <div class="step-action">Output: S1 score 0–100 · Decision threshold applied</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Decision node S1 -->
+    <div class="decision-node reveal">
+      <div class="decision-title">⚡ Stage 1 Decision Gate</div>
+      <p style="font-size:13px;color:var(--text-sub)">Three routing paths based on S1 score — only the grey zone proceeds to Stage 2</p>
+      <div class="decision-grid">
+        <div class="d-branch d-phishing">
+          <div class="d-thresh">S1 ≥ 90</div>
+          <div class="d-label">→ Phishing · Block</div>
+        </div>
+        <div class="d-branch d-grey">
+          <div class="d-thresh">65 ≤ S1 &lt; 90</div>
+          <div class="d-label">→ Stage 2 Analysis</div>
+        </div>
+        <div class="d-branch d-safe">
+          <div class="d-thresh">S1 &lt; 65</div>
+          <div class="d-label">→ Safe · Allow</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step right reveal">
+      <div class="step-content">
+        <div class="step-card">
+          <div class="step-num">Step 05</div>
+          <div class="step-title">Stage 2 — Deep Feature Extraction</div>
+          <p class="step-desc">16 additional behavioral features are extracted for grey-zone URLs: login form detection, external form action, base64 in query, punycode domains, redirect chains, unicode tricks.</p>
+          <div class="step-action">Goal: Expose obfuscation and behavioral phishing signals</div>
+        </div>
+      </div>
+      <div class="step-node">
+        <div class="node-circle"><span class="node-icon">⚗️</span></div>
+      </div>
+      <div class="step-side">
+        <div class="side-box yellow-accent">
+          <div class="side-label">Stage 2 Signals</div>
+          <p class="side-text">has_login_form · external_form_action · base64_in_query · encoded_domain · unicode_in_domain · fake_https_prefix · multiple_http · long_subdomain</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step left reveal">
+      <div class="step-side">
+        <div class="side-box purple-accent">
+          <div class="side-label">Combined Input</div>
+          <p class="side-text">Stage 2 model receives all 47 features (31 S1 + 16 S2). This gives a richer picture of behavioral intent beyond URL structure alone.</p>
+        </div>
+      </div>
+      <div class="step-node">
+        <div class="node-circle"><span class="node-icon">🧠</span></div>
+      </div>
+      <div class="step-content">
+        <div class="step-card">
+          <div class="step-num">Step 06</div>
+          <div class="step-title">Stage 2 ML Prediction (S2)</div>
+          <p class="step-desc">A deeper Random Forest (300 trees) runs on the combined 47-feature vector. Output is a refined risk score with higher confidence on ambiguous URLs.</p>
+          <div class="step-action">Output: S2 score 0–100 · Final classification ready</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Decision node S2 -->
+    <div class="decision-node reveal" style="border-color:rgba(255,51,102,0.22)">
+      <div class="decision-title" style="color:var(--red)">🚨 Stage 2 Decision Gate</div>
+      <p style="font-size:13px;color:var(--text-sub)">Final classification for grey-zone URLs</p>
+      <div class="decision-grid" style="grid-template-columns:1fr 1fr">
+        <div class="d-branch d-phishing">
+          <div class="d-thresh">S2 ≥ 80</div>
+          <div class="d-label">→ Phishing · Auto-Blacklist</div>
+        </div>
+        <div class="d-branch d-grey">
+          <div class="d-thresh">S2 &lt; 80</div>
+          <div class="d-label">→ Suspicious · Warn</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="step right reveal">
+      <div class="step-content">
+        <div class="step-card">
+          <div class="step-num">Step 07</div>
+          <div class="step-title">Mode-Based Action Layer</div>
+          <p class="step-desc">The final risk score is converted to an action based on the request mode. Viewer mode always returns <code style="color:var(--green);font-size:12px">"none"</code>. Protect mode enforces block/warn/allow.</p>
+          <div class="step-action">Action: Map status × mode → block | warn | allow | none</div>
+        </div>
+      </div>
+      <div class="step-node">
+        <div class="node-circle"><span class="node-icon">⚙️</span></div>
+      </div>
+      <div class="step-side">
+        <div class="side-box green-accent">
+          <div class="side-label">Action Map</div>
+          <p class="side-text">
+            <span style="color:var(--red)">phishing</span> + protect → <strong style="color:var(--text)">block</strong><br>
+            <span style="color:var(--yellow)">suspicious</span> + protect → <strong style="color:var(--text)">warn</strong><br>
+            <span style="color:var(--green)">safe</span> + protect → <strong style="color:var(--text)">allow</strong><br>
+            any + viewer → <strong style="color:var(--text)">none</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 8 -->
+    <div class="step left reveal">
+      <div class="step-side">
+        <div class="side-box red-accent">
+          <div class="side-label">Auto-Blacklist</div>
+          <p class="side-text">Domains scoring ≥ 90 are automatically written to the blacklist. Future requests to the same domain return instantly — no ML required.</p>
+        </div>
+      </div>
+      <div class="step-node">
+        <div class="node-circle"><span class="node-icon">💾</span></div>
+      </div>
+      <div class="step-content">
+        <div class="step-card">
+          <div class="step-num">Step 08</div>
+          <div class="step-title">Persistence &amp; Auto-Blacklisting</div>
+          <p class="step-desc">Every scan is written to the SQLite audit log. High-risk domains are upserted into the blacklist table. The URL cache is invalidated for consistency.</p>
+          <div class="step-action">Action: INSERT scan · UPSERT domain if score ≥ 90 · Invalidate cache</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 9 -->
+    <div class="step right reveal">
+      <div class="step-content">
+        <div class="step-card">
+          <div class="step-num">Step 09</div>
+          <div class="step-title">Response Serialisation</div>
+          <p class="step-desc">The Pydantic CheckURLResponse model validates and serialises the output. CORS headers are attached for browser extension cross-origin access.</p>
+          <div class="step-action">Output: JSON · risk_score · status · action · reasons[ ]</div>
+        </div>
+      </div>
+      <div class="step-node">
+        <div class="node-circle"><span class="node-icon">📤</span></div>
+      </div>
+      <div class="step-side">
+        <div class="side-box blue-accent">
+          <div class="side-label">Response Schema</div>
+          <p class="side-text" style="font-family:var(--mono);font-size:11px;line-height:1.9">
+            risk_score: 0–100<br>
+            status: safe|suspicious|phishing<br>
+            action: allow|warn|block|none<br>
+            reasons: string[]
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 10 -->
+    <div class="step left reveal">
+      <div class="step-side">
+        <div class="side-box green-accent">
+          <div class="side-label">Extension Enforcement</div>
+          <p class="side-text">The extension reads the action field. <strong style="color:var(--red)">block</strong> → redirect to warning.html. <strong style="color:var(--yellow)">warn</strong> → inject banner. <strong style="color:var(--green)">allow</strong> → proceed silently.</p>
+        </div>
+      </div>
+      <div class="step-node">
+        <div class="node-circle"><span class="node-icon">🔒</span></div>
+      </div>
+      <div class="step-content">
+        <div class="step-card">
+          <div class="step-num">Step 10</div>
+          <div class="step-title">Client-Side Enforcement</div>
+          <p class="step-desc">The web dashboard displays the result card with colour-coded risk. The browser extension enforces the action — blocking, warning, or allowing navigation.</p>
+          <div class="step-action">End result: User is protected or informed in real time</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+
+  <!-- Metrics summary -->
+  <div class="divider"></div>
+  <section style="padding:48px 48px 16px">
+    <div class="section-label reveal" style="text-align:center">// Pipeline Performance</div>
+    <h2 class="section-title reveal" style="text-align:center">By the <span>Numbers</span></h2>
+  </section>
+
+  <div class="metrics-bar">
+    <div class="metric-pill reveal" data-delay="0">
+      <div class="metric-val" style="color:var(--green)">~3ms</div>
+      <div class="metric-lbl">Stage 1 Speed</div>
+      <div class="metric-bar-track"><div class="metric-bar-fill" style="width:95%;background:var(--green)"></div></div>
+    </div>
+    <div class="metric-pill reveal" data-delay="80">
+      <div class="metric-val" style="color:var(--blue)">~8ms</div>
+      <div class="metric-lbl">Stage 2 Speed</div>
+      <div class="metric-bar-track"><div class="metric-bar-fill" style="width:80%;background:var(--blue)"></div></div>
+    </div>
+    <div class="metric-pill reveal" data-delay="160">
+      <div class="metric-val" style="color:var(--purple)">31</div>
+      <div class="metric-lbl">S1 Features</div>
+      <div class="metric-bar-track"><div class="metric-bar-fill" style="width:66%;background:var(--purple)"></div></div>
+    </div>
+    <div class="metric-pill reveal" data-delay="240">
+      <div class="metric-val" style="color:var(--yellow)">47</div>
+      <div class="metric-lbl">S2 Features</div>
+      <div class="metric-bar-track"><div class="metric-bar-fill" style="width:100%;background:var(--yellow)"></div></div>
+    </div>
+    <div class="metric-pill reveal" data-delay="320">
+      <div class="metric-val" style="color:var(--green)">98%</div>
+      <div class="metric-lbl">Accuracy</div>
+      <div class="metric-bar-track"><div class="metric-bar-fill" style="width:98%;background:var(--green)"></div></div>
+    </div>
+    <div class="metric-pill reveal" data-delay="400">
+      <div class="metric-val" style="color:var(--red)">1.5%</div>
+      <div class="metric-lbl">Miss Rate</div>
+      <div class="metric-bar-track"><div class="metric-bar-fill" style="width:8%;background:var(--red)"></div></div>
+    </div>
+  </div>
+
+</div>
+<div id="footer-holder"></div>
+<script src="main.js"></script>
+</body>
+</html>

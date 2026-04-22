@@ -1,0 +1,192 @@
+{
+  "Stage 1 (URL features)": {
+    "cv_metrics": {
+      "accuracy": {
+        "train": 0.9257,
+        "val": 0.891,
+        "val_std": 0.0027,
+        "gap": 0.0346
+      },
+      "precision": {
+        "train": 0.9597,
+        "val": 0.9193,
+        "val_std": 0.0066,
+        "gap": 0.0404
+      },
+      "recall": {
+        "train": 0.8885,
+        "val": 0.8572,
+        "val_std": 0.0089,
+        "gap": 0.0312
+      },
+      "f1": {
+        "train": 0.9227,
+        "val": 0.8871,
+        "val_std": 0.0033,
+        "gap": 0.0356
+      },
+      "roc_auc": {
+        "train": 0.9724,
+        "val": 0.943,
+        "val_std": 0.004,
+        "gap": 0.0294
+      }
+    },
+    "test_metrics": {
+      "accuracy": 0.8889,
+      "precision": 0.9141,
+      "recall": 0.8582,
+      "f1": 0.8853,
+      "roc_auc": 0.9461
+    },
+    "confusion_matrix": {
+      "tn": 1840,
+      "fp": 161,
+      "fn": 283,
+      "tp": 1713
+    },
+    "false_positive_rate_pct": 8.05,
+    "false_negative_rate_pct": 14.18,
+    "top_features": [
+      {
+        "feature": "s1_keyword_count",
+        "importance": 0.13383
+      },
+      {
+        "feature": "s1_subdomain_length",
+        "importance": 0.12164
+      },
+      {
+        "feature": "s1_subdomain_count",
+        "importance": 0.10488
+      },
+      {
+        "feature": "s1_path_length",
+        "importance": 0.09194
+      },
+      {
+        "feature": "s1_has_www",
+        "importance": 0.07855
+      },
+      {
+        "feature": "s1_url_length",
+        "importance": 0.07809
+      },
+      {
+        "feature": "s1_path_depth",
+        "importance": 0.07731
+      },
+      {
+        "feature": "s1_slash_count",
+        "importance": 0.04664
+      },
+      {
+        "feature": "s1_has_suspicious_ext",
+        "importance": 0.0396
+      },
+      {
+        "feature": "s1_dot_count",
+        "importance": 0.03901
+      }
+    ],
+    "n_train": 15986,
+    "n_test": 3997,
+    "n_features": 31,
+    "overfitting_warning": false
+  },
+  "Stage 2 (Deep features)": {
+    "cv_metrics": {
+      "accuracy": {
+        "train": 0.9214,
+        "val": 0.8877,
+        "val_std": 0.004,
+        "gap": 0.0337
+      },
+      "precision": {
+        "train": 0.9598,
+        "val": 0.9198,
+        "val_std": 0.0039,
+        "gap": 0.04
+      },
+      "recall": {
+        "train": 0.8795,
+        "val": 0.8493,
+        "val_std": 0.0118,
+        "gap": 0.0302
+      },
+      "f1": {
+        "train": 0.9179,
+        "val": 0.8831,
+        "val_std": 0.0051,
+        "gap": 0.0348
+      },
+      "roc_auc": {
+        "train": 0.9716,
+        "val": 0.9428,
+        "val_std": 0.004,
+        "gap": 0.0287
+      }
+    },
+    "test_metrics": {
+      "accuracy": 0.8852,
+      "precision": 0.9134,
+      "recall": 0.8507,
+      "f1": 0.8809,
+      "roc_auc": 0.9444
+    },
+    "confusion_matrix": {
+      "tn": 1840,
+      "fp": 161,
+      "fn": 298,
+      "tp": 1698
+    },
+    "false_positive_rate_pct": 8.05,
+    "false_negative_rate_pct": 14.93,
+    "top_features": [
+      {
+        "feature": "s1_subdomain_length",
+        "importance": 0.13191
+      },
+      {
+        "feature": "s1_subdomain_count",
+        "importance": 0.09624
+      },
+      {
+        "feature": "s2_s1_keyword_count",
+        "importance": 0.08799
+      },
+      {
+        "feature": "s1_path_depth",
+        "importance": 0.08241
+      },
+      {
+        "feature": "s1_path_length",
+        "importance": 0.07638
+      },
+      {
+        "feature": "s1_keyword_count",
+        "importance": 0.07477
+      },
+      {
+        "feature": "s1_has_www",
+        "importance": 0.06556
+      },
+      {
+        "feature": "s1_url_length",
+        "importance": 0.06228
+      },
+      {
+        "feature": "s1_slash_count",
+        "importance": 0.03632
+      },
+      {
+        "feature": "s1_has_suspicious_ext",
+        "importance": 0.03523
+      }
+    ],
+    "n_train": 15986,
+    "n_test": 3997,
+    "n_features": 47,
+    "overfitting_warning": false
+  }
+}

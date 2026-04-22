@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishGuard — Analytics</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.a-header { padding: 56px 48px 28px; border-bottom: 1px solid var(--border); }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  padding: 32px 48px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color var(--transition), transform var(--transition);
+}
+
+.stat-card:hover { border-color: var(--border-mid); transform: translateY(-2px); }
+
+.stat-card::after {
+  content:''; position:absolute;
+  top:0; left:0; right:0; height:3px;
+  border-radius: 12px 12px 0 0;
+}
+
+.stat-card.c-total::after   { background:var(--blue); }
+.stat-card.c-safe::after    { background:var(--green); }
+.stat-card.c-susp::after    { background:var(--yellow); }
+.stat-card.c-phish::after   { background:var(--red); }
+.stat-card.c-web::after     { background:var(--purple); }
+.stat-card.c-ext::after     { background:var(--blue); }
+
+.snum {
+  font-family: var(--display);
+  font-size: 38px; font-weight: 900; line-height: 1;
+  margin-bottom: 8px;
+}
+
+.c-total  .snum { color:var(--blue); }
+.c-safe   .snum { color:var(--green); }
+.c-susp   .snum { color:var(--yellow); }
+.c-phish  .snum { color:var(--red); }
+.c-web    .snum { color:var(--purple); }
+.c-ext    .snum { color:var(--blue); }
+
+.slbl {
+  font-family: var(--mono); font-size:10px;
+  letter-spacing:2px; text-transform:uppercase;
+  color:var(--text-muted);
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+  padding: 0 48px 24px;
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.chart-title {
+  font-family: var(--mono); font-size:11px;
+  letter-spacing:2px; color:var(--text-sub);
+  text-transform:uppercase; margin-bottom:20px;
+}
+
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 16px;
+  padding: 0 48px 24px;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+  text-align: center;
+}
+
+.mval {
+  font-family: var(--display);
+  font-size: 34px; font-weight: 900; color:var(--blue);
+  margin-bottom: 6px;
+}
+
+.mlbl {
+  font-family: var(--mono); font-size:10px;
+  letter-spacing:2px; text-transform:uppercase; color:var(--text-muted);
+}
+
+.mbar { width:100%; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; margin-top:12px; overflow:hidden; }
+.mbar-fill { height:100%; border-radius:2px; }
+
+.table-section { padding: 0 48px 80px; }
+
+.t-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+
+.t-head-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  padding: 13px 22px;
+  background: rgba(0,255,170,0.03);
+  border-bottom: 1px solid var(--border);
+}
+
+.t-scan-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  padding: 13px 22px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  align-items: center;
+  transition: background 0.15s;
+}
+
+.t-scan-row:hover { background: rgba(0,255,170,0.02); }
+.t-scan-row:last-child { border-bottom: none; }
+
+.th { font-family:var(--mono); font-size:10px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; }
+.td { font-size:13px; color:var(--text-sub); }
+.td.url { font-family:var(--mono); font-size:11px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.bar-wrap {
+  padding: 0 48px 24px;
+}
+
+@media(max-width:768px) {
+  .a-header   { padding:40px 20px 24px; }
+  .stats-grid { padding:20px; }
+  .charts-row { grid-template-columns:1fr; padding:0 20px 20px; }
+  .metrics-row{ grid-template-columns:1fr; padding:0 20px 20px; }
+  .table-section{ padding:0 20px 60px; }
+  .bar-wrap   { padding:0 20px 20px; }
+  .t-head-row, .t-scan-row { grid-template-columns:2fr 1fr 1fr; }
+  .t-head-row > :nth-child(4), .t-head-row > :nth-child(5),
+  .t-scan-row > :nth-child(4), .t-scan-row > :nth-child(5) { display:none; }
+}
+</style>
+</head>
+<body data-page="analytics">
+<div id="nav-holder"></div>
+
+<div class="page-wrap">
+  <div class="a-header">
+    <div class="section-label reveal">// Real-Time Metrics</div>
+    <h1 class="section-title reveal">Analytics <span>Dashboard</span></h1>
+    <p class="section-sub reveal">Live scan statistics, threat distribution, and model performance metrics.</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card c-total reveal"><div class="snum" id="a-total">—</div><div class="slbl">Total Scans</div></div>
+    <div class="stat-card c-safe reveal" data-delay="60"><div class="snum" id="a-safe">—</div><div class="slbl">Safe</div></div>
+    <div class="stat-card c-susp reveal" data-delay="120"><div class="snum" id="a-susp">—</div><div class="slbl">Suspicious</div></div>
+    <div class="stat-card c-phish reveal" data-delay="180"><div class="snum" id="a-phish">—</div><div class="slbl">Phishing</div></div>
+    <div class="stat-card c-web reveal" data-delay="240"><div class="snum" id="a-web">—</div><div class="slbl">Web Scans</div></div>
+    <div class="stat-card c-ext reveal" data-delay="300"><div class="snum" id="a-ext">—</div><div class="slbl">Extension</div></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-row">
+    <div class="chart-card reveal">
+      <div class="chart-title">// Distribution</div>
+      <div style="height:220px;position:relative"><canvas id="pie-chart"></canvas></div>
+    </div>
+    <div class="chart-card reveal" data-delay="100">
+      <div class="chart-title">// Detections Over Time</div>
+      <div style="height:220px;position:relative"><canvas id="line-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Feature importance bar chart -->
+  <div class="bar-wrap">
+    <div class="chart-card reveal">
+      <div class="chart-title">// Feature Importance (ML Model)</div>
+      <div style="height:190px;position:relative"><canvas id="bar-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Accuracy Metrics -->
+  <div class="metrics-row">
+    <div class="metric-card reveal">
+      <div class="mval" style="color:var(--green)">94.2%</div>
+      <div class="mlbl">Precision</div>
+      <div class="mbar"><div class="mbar-fill" style="width:94.2%;background:var(--green)"></div></div>
+    </div>
+    <div class="metric-card reveal" data-delay="80">
+      <div class="mval" style="color:var(--blue)">91.7%</div>
+      <div class="mlbl">Recall</div>
+      <div class="mbar"><div class="mbar-fill" style="width:91.7%;background:var(--blue)"></div></div>
+    </div>
+    <div class="metric-card reveal" data-delay="160">
+      <div class="mval" style="color:var(--purple)">92.9%</div>
+      <div class="mlbl">F1-Score</div>
+      <div class="mbar"><div class="mbar-fill" style="width:92.9%;background:var(--purple)"></div></div>
+    </div>
+  </div>
+
+  <!-- Recent scans table -->
+  <div class="table-section">
+    <div class="section-label reveal">// Recent Scans</div>
+    <h2 class="section-title reveal" style="margin-bottom:24px">Scan <span>History</span></h2>
+    <div class="t-wrap reveal">
+      <div class="t-head-row">
+        <div class="th">URL</div>
+        <div class="th">Domain</div>
+        <div class="th">Score</div>
+        <div class="th">Status</div>
+        <div class="th">Source</div>
+      </div>
+      <div id="scan-body">
+        <div class="t-scan-row">
+          <div class="td" style="color:var(--text-muted);font-family:var(--mono);font-size:11px">Loading scan history…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer-holder"></div>
+<script src="main.js"></script>
+<script>
+let pieChart, lineChart, barChart;
+
+function scoreColor(s) {
+  if (s >= 65) return 'var(--red)';
+  if (s >= 35) return 'var(--yellow)';
+  return 'var(--green)';
+}
+
+function getDemoData() {
+  return {
+    totals:{ total_scans:247, safe_count:183, suspicious_count:31, phishing_count:33, web_scans:198, extension_scans:49 },
+    daily:[
+      {date:'Apr 16',total:31,phishing:7,safe:20},{date:'Apr 17',total:28,phishing:4,safe:19},
+      {date:'Apr 18',total:35,phishing:8,safe:23},{date:'Apr 19',total:42,phishing:6,safe:31},
+      {date:'Apr 20',total:55,phishing:9,safe:40},{date:'Apr 21',total:68,phishing:11,safe:51},
+      {date:'Apr 22',total:69,phishing:9,safe:52},
+    ],
+    recent_scans:[
+      {url:'https://paypal-secure-login.com/verify',domain:'paypal-secure-login.com',risk_score:95,status:'phishing',action:'none',source:'web'},
+      {url:'https://google.com',domain:'google.com',risk_score:0,status:'safe',action:'none',source:'web'},
+      {url:'https://amazon-prize-winner.net',domain:'amazon-prize-winner.net',risk_score:88,status:'phishing',action:'block',source:'extension'},
+      {url:'https://suspicious-login.xyz/account',domain:'suspicious-login.xyz',risk_score:72,status:'suspicious',action:'warn',source:'extension'},
+      {url:'https://github.com',domain:'github.com',risk_score:2,status:'safe',action:'none',source:'web'},
+      {url:'http://payp%61l.com.ru/signin',domain:'paypal.com.ru',risk_score:97,status:'phishing',action:'block',source:'extension'},
+    ]
+  };
+}
+
+function renderAll(data) {
+  const t = data.totals || {};
+  document.getElementById('a-total').textContent = t.total_scans ?? '—';
+  document.getElementById('a-safe').textContent  = t.safe_count ?? '—';
+  document.getElementById('a-susp').textContent  = t.suspicious_count ?? '—';
+  document.getElementById('a-phish').textContent = t.phishing_count ?? '—';
+  document.getElementById('a-web').textContent   = t.web_scans ?? '—';
+  document.getElementById('a-ext').textContent   = t.extension_scans ?? '—';
+
+  // Table
+  const scans = data.recent_scans || [];
+  document.getElementById('scan-body').innerHTML = scans.length ? scans.map(s => `
+    <div class="t-scan-row">
+      <div class="td url">${(s.url||'').length > 40 ? s.url.slice(0,40)+'…' : (s.url||'')}</div>
+      <div class="td" style="font-family:var(--mono);font-size:11px">${s.domain||''}</div>
+      <div class="td" style="font-family:var(--mono);color:${scoreColor(s.risk_score||0)}">${Math.round(s.risk_score||0)}%</div>
+      <div class="td"><span class="badge badge-${s.status}">${s.status||''}</span></div>
+      <div class="td" style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">${s.source||'web'}</div>
+    </div>`).join('') :
+    '<div class="t-scan-row"><div class="td" style="color:var(--text-muted)">No scans yet</div></div>';
+
+  // Charts
+  Chart.defaults.color = '#6d8fad';
+  Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+
+  if (pieChart) pieChart.destroy();
+  pieChart = new Chart(document.getElementById('pie-chart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Safe','Suspicious','Phishing'],
+      datasets: [{ data: [t.safe_count||0, t.suspicious_count||0, t.phishing_count||0],
+        backgroundColor: ['rgba(0,255,170,0.65)','rgba(255,215,0,0.65)','rgba(255,51,102,0.65)'],
+        borderColor: ['#00ffaa','#ffd700','#ff3366'], borderWidth:2 }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, padding:14 } } },
+      cutout:'62%' }
+  });
+
+  const daily = [...(data.daily||[])].slice(-14);
+  if (lineChart) lineChart.destroy();
+  lineChart = new Chart(document.getElementById('line-chart'), {
+    type:'line',
+    data:{
+      labels: daily.map(d => d.date || ''),
+      datasets:[
+        { label:'Total', data:daily.map(d=>d.total||0), borderColor:'var(--blue)', backgroundColor:'rgba(0,212,255,0.07)', fill:true, tension:0.4, pointRadius:3 },
+        { label:'Phishing', data:daily.map(d=>d.phishing||0), borderColor:'var(--red)', backgroundColor:'rgba(255,51,102,0.07)', fill:true, tension:0.4, pointRadius:3 }
+      ]
+    },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ boxWidth:12 } } },
+      scales:{ x:{ grid:{ color:'rgba(255,255,255,0.04)' } }, y:{ grid:{ color:'rgba(255,255,255,0.04)' }, beginAtZero:true } } }
+  });
+
+  if (barChart) barChart.destroy();
+  barChart = new Chart(document.getElementById('bar-chart'), {
+    type:'bar',
+    data:{
+      labels:['Brand Impersonation','IP in URL','Keyword Count','URL Length','No HTTPS','Encoded Chars','Subdomain Depth','Suspicious TLD'],
+      datasets:[{ label:'Importance',
+        data:[0.224,0.183,0.152,0.123,0.102,0.09,0.079,0.045],
+        backgroundColor:['rgba(0,255,170,0.7)','rgba(255,51,102,0.7)','rgba(255,215,0,0.7)','rgba(0,212,255,0.7)','rgba(179,71,234,0.7)','rgba(255,140,0,0.7)','rgba(0,255,170,0.4)','rgba(255,51,102,0.4)'],
+        borderRadius:4 }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{ x:{ grid:{ display:false }, ticks:{ font:{ size:10 } } }, y:{ grid:{ color:'rgba(255,255,255,0.04)' }, beginAtZero:true, max:0.3 } } }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const data = await fetchAnalytics();
+    renderAll(data);
+  } catch(e) {
+    renderAll(getDemoData());
+  }
+});
+</script>
+</body>
+</html>

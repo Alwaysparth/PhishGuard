@@ -21,7 +21,7 @@
 const API_BASE = window.location.hostname === 'localhost'
   || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:8000'                        // local dev
-  : 'https://phishguard-api.onrender.com';         // ← replace with your real Render URL
+  : 'https://phishguard-api-n4tj.onrender.com';         // ← replace with your real Render URL
  
 /* ── Navbar HTML ─────────────────────────────────────────────── */
 const NAV_HTML = `

@@ -310,6 +310,10 @@ function submitForm() {
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(checkServer, 800);
 });
+// Ping the backend every 14 minutes to prevent cold starts
+setInterval(() => {
+  fetch(`${API_BASE}/health`).catch(() => {});
+}, 14 * 60 * 1000);
 </script>
 </body>
 </html>

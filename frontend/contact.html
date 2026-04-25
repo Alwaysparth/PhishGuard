@@ -276,7 +276,7 @@
 async function checkServer() {
   const el = document.getElementById('srv-status');
   try {
-    const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(4000) });
+    const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(60000) });
     if (res.ok) {
       el.innerHTML = `<div class="status-dot"></div> API server online &nbsp;·&nbsp; `;
       el.style.borderColor = 'rgba(0,255,170,0.2)';

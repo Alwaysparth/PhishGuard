@@ -19,9 +19,6 @@
  
 /* ── API Base URL — UPDATE THIS after Render deployment ────── */
 const API_BASE = 'https://phishguard-api-n4tj.onrender.com'
-  || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:8000'                      // local dev
-  : 'https://phishguard-api-n4tj.onrender.com';         // ← replace with your real Render URL
  
 /* ── Navbar HTML ─────────────────────────────────────────────── */
 const NAV_HTML = `
